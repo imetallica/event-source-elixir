@@ -1,19 +1,23 @@
 defmodule Es.Integration.Router do
   @moduledoc """
-
+  Routes.
   """
   use Plug.Router
 
+  alias Es.Aggregates.Order
+
+  plug(:match)
   plug(Plug.Logger)
   plug(Plug.RequestId)
   plug(Plug.Telemetry, event_prefix: [:es, :api])
   plug(Plug.Parsers, parsers: [:json], json_decoder: Jason)
-  plug(:match)
   plug(:dispatch)
 
-  get "/api/v1/orders" do
-    with {:ok, response} <- Jason.encode(%{hello: "123"}) do
-      conn |> send_resp(200, response) |> halt()
+  post "/api/command" do
+    with :ok <- Order.create(conn.body_params["payload"]),
+         {:ok, response} <-
+           Jason.encode(%{command: "create_user", version: "v1", payload: "accepted"}) do
+      conn |> send_resp(202, response) |> halt()
     end
   end
 

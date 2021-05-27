@@ -11,7 +11,9 @@ defmodule Es.Application do
       # Starts a worker by calling: Es.Worker.start_link(arg)
       # {Es.Worker, arg}
       {Plug.Cowboy, scheme: :http, plug: Es.Integration.Router},
-      {Registry, keys: :unique, name: Registry.LocalApp, partitions: System.schedulers_online()}
+      {Registry, keys: :unique, name: LocalRegistry, partitions: System.schedulers_online()},
+      Es.Wiring,
+      Es.Projections.Supervisor
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
